@@ -16,15 +16,8 @@ const cubeSize = 3;
 import Cube from 'cubejs';
 let cubies = [];
 const cube = ref(new Cube());
-
-const colors = {
-  right: 0xff0000,  // Red
-  left: 0xffa500,   // Orange
-  top: 0xffffff,    // White
-  bottom: 0xffff00, // Yellow
-  front: 0x00ff00,  // Green
-  back: 0x0000ff,   // Blue
-};
+const cubieSize = 1;
+const spacing = 0.05;
 
 const createCubies = () => {
   cubeGroup = new THREE.Group();
@@ -111,6 +104,7 @@ const rotateFace = (axis, index, angle) => {
       move = move.includes("'") ? move.replace("'", "") : move + "'";
     }
     cube.value.move(move);
+    console.log(move)
   }
 
   updateCubeState();
@@ -120,34 +114,64 @@ const updateCubeState = () => {
   state.value = cube.value.asString();
   // You can emit this state or use it as needed
 };
-const getColorHex = (colorChar) => {
-  const colorMap = {
-    'U': 0xFFFFFF, // White
-    'R': 0xFF0000, // Red
-    'F': 0x00FF00, // Green
-    'D': 0xFFFF00, // Yellow
-    'L': 0xFFA500, // Orange
-    'B': 0x0000FF  // Blue
-  };
-  return colorMap[colorChar];
+const colors = {
+  U: 0xFFFFFF, // White
+  R: 0xFF0000, // Red
+  F: 0x00FF00, // Green
+  D: 0xFFFF00, // Yellow
+  L: 0xFFA500, // Orange
+  B: 0x0000FF  // Blue
 };
 const updateThreeJsFromCubeState = () => {
   const state = cube.value.asString();
 
-  cubeGroup.children.forEach((cubie, index) => {
-    const x = index % 3;
-    const y = Math.floor(index / 9);
-    const z = Math.floor((index % 9) / 3);
+  cubeGroup.children.forEach((cubie) => {
+    const { x, y, z } = cubie.userData.coords;
 
-    // Update materials based on the cube state
-    cubie.material[0].color.setHex(getColorHex(state[4 + y*9 + z*3])); // Right
-    cubie.material[1].color.setHex(getColorHex(state[40 + y*9 + (2-z)*3])); // Left
-    cubie.material[2].color.setHex(getColorHex(state[y*9 + x])); // Up
-    cubie.material[3].color.setHex(getColorHex(state[27 + y*9 + x])); // Down
-    cubie.material[4].color.setHex(getColorHex(state[18 + y*9 + x])); // Front
-    cubie.material[5].color.setHex(getColorHex(state[45 + y*9 + (2-x)*3])); // Back
+    // Right face (x = 2)
+    cubie.material[0].color.setHex(x === 2 ? colors[state[9 + (2-y)*3 + z]] : 0x000000);
+
+    // Left face (x = 0)
+    cubie.material[1].color.setHex(x === 0 ? colors[state[36 + (2-y)*3 + (2-z)]] : 0x000000);
+
+    // Up face (y = 2)
+    cubie.material[2].color.setHex(y === 2 ? colors[state[x + z*3]] : 0x000000);
+
+    // Down face (y = 0)
+    cubie.material[3].color.setHex(y === 0 ? colors[state[45 + (2-x) + z*3]] : 0x000000);
+
+    // Front face (z = 2)
+    cubie.material[4].color.setHex(z === 2 ? colors[state[18 + (2-y)*3 + x]] : 0x000000);
+
+    // Back face (z = 0)
+    cubie.material[5].color.setHex(z === 0 ? colors[state[27 + (2-y)*3 + (2-x)]] : 0x000000);
   });
 };
+const createCubeGroup = () => {
+  cubeGroup = new THREE.Group();
+
+  for (let x = 0; x < cubeSize; x++) {
+    for (let y = 0; y < cubeSize; y++) {
+      for (let z = 0; z < cubeSize; z++) {
+        const geometry = new THREE.BoxGeometry(cubieSize, cubieSize, cubieSize);
+        const materials = Array(6).fill().map(() => new THREE.MeshBasicMaterial({ color: 0x000000 }));
+        const cubie = new THREE.Mesh(geometry, materials);
+
+        cubie.position.set(
+          (x - 1) * (cubieSize + spacing),
+          (y - 1) * (cubieSize + spacing),
+          (z - 1) * (cubieSize + spacing)
+        );
+        cubie.userData.coords = { x, y, z };
+        cubeGroup.add(cubie);
+      }
+    }
+  }
+
+  scene.add(cubeGroup);
+};
+
+
 const init = () => {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, container.value.clientWidth / container.value.clientHeight, 0.1, 1000);
@@ -155,7 +179,8 @@ const init = () => {
   renderer.setSize(container.value.clientWidth, container.value.clientHeight);
   container.value.appendChild(renderer.domElement);
 
-  createCubies();
+  createCubeGroup();
+  updateThreeJsFromCubeState()
 
   camera.position.set(4, 4, 4);
   camera.lookAt(0, 0, 0);
@@ -194,27 +219,22 @@ onBeforeUnmount(() => {
 
 const rotateTopRow = () => {
   rotateFace('y', cubeSize - 1, Math.PI / 4);
-  cube.value.move("U");
+
 };
 const rotateBottomRow = () => {
   rotateFace('y', 0, -Math.PI / 4);
-  cube.value.move("D");
 };
 const rotateLeftColumn = () => {
   rotateFace('x', 0, -Math.PI / 4);
-  cube.value.move("L");
 };
 const rotateRightColumn = () => {
   rotateFace('x', cubeSize - 1, Math.PI / 4);
-  cube.value.move("R");
 };
 const rotateFrontFace = () => {
   rotateFace('z', cubeSize - 1, -Math.PI / 4);
-  cube.value.move("F");
 };
 const rotateBackFace = () => {
   rotateFace('z', 0, Math.PI / 4);
-  cube.value.move("B");
 };
 
 const getCubeState = () => {
