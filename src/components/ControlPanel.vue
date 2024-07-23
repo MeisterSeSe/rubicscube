@@ -1,8 +1,5 @@
 <template>
   <div class="control-panel">
-    <button @click="$emit('rotate', 'x')">Rotate X</button>
-    <button @click="$emit('rotate', 'y')">Rotate Y</button>
-    <button @click="$emit('rotate', 'z')">Rotate Z</button>
     <button @click="$emit('rotateTopRow')">Rotate Top Row</button>
     <button @click="$emit('rotateBottomRow')">Rotate Bottom Row</button>
     <button @click="$emit('rotateLeftColumn')">Rotate Left Column</button>

@@ -4,6 +4,7 @@
     <ol>
       <li v-for="(step, index) in steps" :key="index">{{ convertSolutionToSteps(step) }}</li>
     </ol>
+    <button @click="$emit('move')">Start Moving</button>
   </div>
 </template>
 
@@ -14,6 +15,7 @@ defineProps({
     default: () => []
   }
 });
+defineEmits(['move']);
 function convertSolutionToSteps(step) {
     const face = step.charAt(0);
     const modifier = step.slice(1);

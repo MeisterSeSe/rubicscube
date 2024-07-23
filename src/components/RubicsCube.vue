@@ -7,111 +7,26 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import Cube from 'cubejs';
 
 const container = ref(null);
 let scene, camera, renderer, cubeGroup, controls;
 
+const solutionSteps = ref([])
 const state = ref('')
 const cubeSize = 3;
-import Cube from 'cubejs';
+
 let cubies = [];
 const cube = ref(new Cube());
 const cubieSize = 1;
 const spacing = 0.05;
 
-const createCubies = () => {
-  cubeGroup = new THREE.Group();
-
-  for (let x = 0; x < cubeSize; x++) {
-    cubies[x] = [];
-    for (let y = 0; y < cubeSize; y++) {
-      cubies[x][y] = [];
-      for (let z = 0; z < cubeSize; z++) {
-        const geometry = new THREE.BoxGeometry(0.95, 0.95, 0.95);
-        const materials = [
-          new THREE.MeshBasicMaterial({ color: x === cubeSize - 1 ? colors.right : 0x000000 }),
-          new THREE.MeshBasicMaterial({ color: x === 0 ? colors.left : 0x000000 }),
-          new THREE.MeshBasicMaterial({ color: y === cubeSize - 1 ? colors.top : 0x000000 }),
-          new THREE.MeshBasicMaterial({ color: y === 0 ? colors.bottom : 0x000000 }),
-          new THREE.MeshBasicMaterial({ color: z === cubeSize - 1 ? colors.front : 0x000000 }),
-          new THREE.MeshBasicMaterial({ color: z === 0 ? colors.back : 0x000000 }),
-        ];
-        const cubie = new THREE.Mesh(geometry, materials);
-        cubie.position.set(x - 1, y - 1, z - 1);
-        cubie.userData.originalPosition = new THREE.Vector3(x, y, z);
-        cubies[x][y][z] = cubie;
-        cubeGroup.add(cubie);
-      }
-    }
-  }
-
-  scene.add(cubeGroup);
-};
-
-const rotateFace = (axis, index, angle) => {
-  const pivotGroup = new THREE.Group();
-  scene.add(pivotGroup);
-
-  const cubesToRotate = [];
-  cubies.forEach((xRow, x) => {
-    xRow.forEach((yRow, y) => {
-      yRow.forEach((cubie, z) => {
-        if ((axis === 'x' && x === index) ||
-            (axis === 'y' && y === index) ||
-            (axis === 'z' && z === index)) {
-          cubesToRotate.push(cubie);
-          pivotGroup.attach(cubie);
-        }
-      });
-    });
-  });
-
-  pivotGroup.rotation[axis] = angle;
-  pivotGroup.updateMatrixWorld();
-
-  cubesToRotate.forEach(cubie => {
-    cubie.applyMatrix4(pivotGroup.matrixWorld);
-    cubie.updateMatrixWorld();
-    cubeGroup.attach(cubie);
-  });
-
-  scene.remove(pivotGroup);
-
-  // Update cubies array
-  const newCubies = Array(cubeSize).fill().map(() => Array(cubeSize).fill().map(() => Array(cubeSize).fill(null)));
-  cubeGroup.children.forEach(cubie => {
-    const newPos = new THREE.Vector3();
-    newPos.setFromMatrixPosition(cubie.matrixWorld);
-    newPos.round().addScalar(1);
-    const [x, y, z] = newPos.toArray();
-    if (x >= 0 && x < cubeSize && y >= 0 && y < cubeSize && z >= 0 && z < cubeSize) {
-      newCubies[x][y][z] = cubie;
-    }
-  });
-  cubies = newCubies;
-// Update cubejs state
-  let move;
-  if (axis === 'x') {
-    move = index === 0 ? "L" : index === 2 ? "R'" : "";
-  } else if (axis === 'y') {
-    move = index === 0 ? "D" : index === 2 ? "U'" : "";
-  } else if (axis === 'z') {
-    move = index === 0 ? "B" : index === 2 ? "F'" : "";
-  }
-
-  if (move) {
-    if (angle < 0) {
-      move = move.includes("'") ? move.replace("'", "") : move + "'";
-    }
-    cube.value.move(move);
-    console.log(move)
-  }
-
-  updateCubeState();
-};
-
+const getSolutionSteps = () => {
+  return solutionSteps.value
+}
 const updateCubeState = () => {
   state.value = cube.value.asString();
+  console.log(cube.value.asString())
   // You can emit this state or use it as needed
 };
 const colors = {
@@ -151,7 +66,9 @@ const createCubeGroup = () => {
   cubeGroup = new THREE.Group();
 
   for (let x = 0; x < cubeSize; x++) {
+    cubies[x] = []
     for (let y = 0; y < cubeSize; y++) {
+      cubies[x][y] = [];
       for (let z = 0; z < cubeSize; z++) {
         const geometry = new THREE.BoxGeometry(cubieSize, cubieSize, cubieSize);
         const materials = Array(6).fill().map(() => new THREE.MeshBasicMaterial({ color: 0x000000 }));
@@ -163,6 +80,7 @@ const createCubeGroup = () => {
           (z - 1) * (cubieSize + spacing)
         );
         cubie.userData.coords = { x, y, z };
+        cubies[x][y][z] = cubie;
         cubeGroup.add(cubie);
       }
     }
@@ -170,8 +88,24 @@ const createCubeGroup = () => {
 
   scene.add(cubeGroup);
 };
+const solveCube = async () => {
 
+  if (!Cube.initSolver.initialized) {
+    await Cube.initSolver();
+  }
 
+  const solution = cube.value.solve();
+  solutionSteps.value = solution.split(' ').filter(step => step !== '');
+  return solutionSteps.value
+};
+
+const move = async () => {
+  for (const move of solutionSteps.value) {
+    cube.value.move(move);
+    await new Promise(resolve => setTimeout(resolve, 500)); // Delay for visualization
+    updateThreeJsFromCubeState();
+  }
+}
 const init = () => {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, container.value.clientWidth / container.value.clientHeight, 0.1, 1000);
@@ -218,51 +152,43 @@ onBeforeUnmount(() => {
 
 
 const rotateTopRow = () => {
-  rotateFace('y', cubeSize - 1, Math.PI / 4);
+  //rotateFace('y', cubeSize - 1, Math.PI / 4);
+  cube.value.move("U'")
+  updateThreeJsFromCubeState()
 
 };
 const rotateBottomRow = () => {
-  rotateFace('y', 0, -Math.PI / 4);
+  //rotateFace('y', 0, -Math.PI / 4);
+  cube.value.move("D'")
+  updateThreeJsFromCubeState()
 };
 const rotateLeftColumn = () => {
-  rotateFace('x', 0, -Math.PI / 4);
+  //rotateFace('x', 0, -Math.PI / 4);
+  cube.value.move("L'")
+  updateThreeJsFromCubeState()
 };
 const rotateRightColumn = () => {
-  rotateFace('x', cubeSize - 1, Math.PI / 4);
+  //rotateFace('x', cubeSize - 1, Math.PI / 4);
+  cube.value.move("R'")
+  updateThreeJsFromCubeState()
 };
 const rotateFrontFace = () => {
-  rotateFace('z', cubeSize - 1, -Math.PI / 4);
+  //rotateFace('z', cubeSize - 1, -Math.PI / 4);
+  cube.value.move("F'")
+  updateThreeJsFromCubeState()
 };
 const rotateBackFace = () => {
-  rotateFace('z', 0, Math.PI / 4);
+  //rotateFace('z', 0, Math.PI / 4);
+  cube.value.move("B'")
+  updateThreeJsFromCubeState()
 };
 
 const getCubeState = () => {
   console.log("Returned: " + state.value)
   return state.value;
 };
-const rotate = (axis) => {
-  const rotationAngle = Math.PI / 2; // 90 degrees
-  switch(axis) {
-    case 'x':
-      rotateFace('x', 0, rotationAngle);
-      rotateFace('x', 1, rotationAngle);
-      rotateFace('x', 2, rotationAngle);
-      break;
-    case 'y':
-      rotateFace('y', 0, rotationAngle);
-      rotateFace('y', 1, rotationAngle);
-      rotateFace('y', 2, rotationAngle);
-      break;
-    case 'z':
-      rotateFace('z', 0, rotationAngle);
-      rotateFace('z', 1, rotationAngle);
-      rotateFace('z', 2, rotationAngle);
-      break;
-  }
-};
 
-defineExpose({ rotate, rotateTopRow, rotateBottomRow, rotateLeftColumn, rotateRightColumn, rotateFrontFace, rotateBackFace, getCubeState });
+defineExpose({getSolutionSteps, rotateTopRow, rotateBottomRow, rotateLeftColumn, rotateRightColumn, rotateFrontFace, rotateBackFace, getCubeState, solveCube, move });
 </script>
 
 <style scoped>
