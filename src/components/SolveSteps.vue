@@ -1,14 +1,20 @@
+<!-- src/components/SolveSteps.vue -->
 <template>
   <div class="solve-steps">
     <h3>Solution Steps:</h3>
     <ol>
-      <li v-for="(step, index) in steps" :key="index">{{ convertSolutionToSteps(step) }}</li>
+      <li v-for="(step, index) in cubeStore.solutionSteps" :key="index">
+        {{ convertSolutionToSteps(step) }}
+      </li>
     </ol>
-    <button @click="$emit('move')">Start Moving</button>
+    <button @click="cubeStore.executeNextStep()">Execute Next Step</button>
   </div>
 </template>
 
 <script setup>
+import { useCubeStore } from '../store/cubeStore';
+
+const cubeStore = useCubeStore();
 defineProps({
   steps: {
     type: Array,

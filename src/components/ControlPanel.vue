@@ -1,18 +1,22 @@
+<!-- src/components/ControlPanel.vue -->
 <template>
   <div class="control-panel">
-    <button @click="$emit('rotateTopRow')">Rotate Top Row</button>
-    <button @click="$emit('rotateBottomRow')">Rotate Bottom Row</button>
-    <button @click="$emit('rotateLeftColumn')">Rotate Left Column</button>
-    <button @click="$emit('rotateRightColumn')">Rotate Right Column</button>
-    <button @click="$emit('rotateFrontFace')">Rotate Front Face</button>
-    <button @click="$emit('rotateBackFace')">Rotate Back Face</button>
-    <button @click="$emit('scramble')">Scramble</button>
-    <button @click="$emit('solve')">Solve</button>
+    <button @click="cubeStore.rotate('U')">Rotate Top Row</button>
+    <button @click="cubeStore.rotate('D')">Rotate Bottom Row</button>
+        <button @click="cubeStore.rotate('L')">Rotate Left Column</button>
+    <button @click="cubeStore.rotate('R')">Rotate Right Column</button>
+        <button @click='rotateBottom'>Rotate Back Face</button>
+    <button @click="cubeStore.rotate('F')">Rotate Front Face</button>
+    <!-- Add other rotation buttons -->
+    <button @click="cubeStore.scramble()">Scramble</button>
+    <button @click="cubeStore.solve()">Solve</button>
   </div>
 </template>
 
 <script setup>
-defineEmits(['rotate','rotateTopRow', 'rotateBottomRow', 'rotateLeftColumn', 'rotateRightColumn', 'rotateFrontFace', 'rotateBackFace', 'scramble', 'solve']);
+import { useCubeStore } from '../store/cubeStore';
+const rotateBottom = () => cubeStore.rotate("B")
+const cubeStore = useCubeStore();
 </script>
 
 <style scoped>
