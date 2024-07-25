@@ -3,11 +3,16 @@
   <div class="solve-steps">
     <h3>Solution Steps:</h3>
     <ol>
-      <li v-for="(step, index) in cubeStore.solutionSteps" :key="index">
+      <li
+        v-for="(step, index) in cubeStore.solutionSteps"
+        :key="index"
+        :class="{ 'current-step': index === cubeStore.currentStep }"
+      >
         {{ convertSolutionToSteps(step) }}
       </li>
     </ol>
     <button @click="cubeStore.executeNextStep()">Execute Next Step</button>
+    <button @click="cubeStore.executeAllSteps()">Execute All Steps</button>
   </div>
 </template>
 
@@ -54,5 +59,12 @@ function convertSolutionToSteps(step) {
 <style scoped>
 .solve-steps {
   margin-top: 20px;
+}
+
+.current-step {
+  font-weight: bold;
+  background-color: #e0e0e0;
+  padding: 5px;
+  border-radius: 3px;
 }
 </style>

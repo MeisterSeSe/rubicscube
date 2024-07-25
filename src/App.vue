@@ -7,6 +7,7 @@
       <div class="side-panel">
         <ControlPanel />
         <SolveSteps />
+        <CubeStateInput></CubeStateInput>
       </div>
     </div>
   </div>
@@ -16,6 +17,7 @@
 import RubicsCube from './components/RubicsCube.vue';
 import ControlPanel from './components/ControlPanel.vue';
 import SolveSteps from './components/SolveSteps.vue';
+import CubeStateInput from "./components/CubeStateInput.vue";
 </script>
 
 <style>
