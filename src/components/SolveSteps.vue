@@ -1,19 +1,27 @@
 <!-- src/components/SolveSteps.vue -->
 <template>
-  <div class="solve-steps">
-    <h3>Solution Steps:</h3>
-    <ol>
-      <li
+  <v-container class="solve-steps">
+    <h3 class="text-h5 mb-4" >Solution Steps</h3>
+    <v-list density="compact" class = "solve-steps mt-0">
+      <v-list-item
         v-for="(step, index) in cubeStore.solutionSteps"
         :key="index"
-        :class="{ 'current-step': index === cubeStore.currentStep }"
+        :class="{ 'text-primary': index === cubeStore.currentStep }"
+
       >
-        {{ convertSolutionToSteps(step) }}
-      </li>
-    </ol>
-    <button @click="cubeStore.executeNextStep()">Execute Next Step</button>
-    <button @click="cubeStore.executeAllSteps()">Execute All Steps</button>
-  </div>
+        <v-list-item-title color="primary" >{{ convertSolutionToSteps(step) }}</v-list-item-title>
+      </v-list-item>
+    </v-list>
+
+    <v-row class="mt-4">
+      <v-col>
+        <v-btn block color="primary" @click="cubeStore.executeNextStep()">Next Step</v-btn>
+      </v-col>
+      <v-col>
+        <v-btn block color="primary" @click="cubeStore.executeAllSteps()">Execute All</v-btn>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
@@ -58,13 +66,20 @@ function convertSolutionToSteps(step) {
 
 <style scoped>
 .solve-steps {
-  margin-top: 20px;
+  background-color: #1a1a1a; /* secondary */
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: #fff;
 }
 
-.current-step {
-  font-weight: bold;
-  background-color: #e0e0e0;
-  padding: 5px;
-  border-radius: 3px;
+.v-list-item.text-primary {
+  background-color: rgba(0, 255, 11, 0.1); /* primary */
+  border-left: 4px solid #00ff0b; /* primary */
+}
+
+.v-btn {
+  font-size: 1rem;
+  font-weight: 500;
 }
 </style>

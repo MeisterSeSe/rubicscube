@@ -24,6 +24,10 @@ export const useCubeStore = defineStore('cube', {
           const randomCube = Cube.random();
           this.cube.init(randomCube);
     },
+    reset(){
+      const newCube = new Cube();
+      this.cube.init(newCube);
+    },
     executeNextStep() {
       if (this.currentStep < this.solutionSteps.length) {
         this.rotate(this.solutionSteps[this.currentStep]);
@@ -39,14 +43,11 @@ export const useCubeStore = defineStore('cube', {
     },
     setCubeState(newState) {
     if (newState.length === 54 && /^[URFDLB]{54}$/.test(newState)) {
-      console.log("Input state:", newState);
 
       const individualCube = Cube.fromString(newState);
       const resultingState = individualCube.asString();
       if (newState !== resultingState) {
-        const warningMessage = "Warning: The cube is in an invalid configuration. Pls check again";
-        console.warn(warningMessage);
-        this.stateWarning = warningMessage;
+        this.stateWarning = "Warning: The cube is in an invalid configuration. Pls check again";
       } else {
         this.stateWarning = '';
         this.cube = individualCube;
@@ -54,9 +55,7 @@ export const useCubeStore = defineStore('cube', {
         this.currentStep = 0;
       }
     } else {
-      const errorMessage = 'Invalid cube state format';
-      console.error(errorMessage);
-      this.stateWarning = errorMessage;
+      this.stateWarning = 'Invalid cube state format';
     }
   }
   },

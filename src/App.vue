@@ -1,40 +1,30 @@
 <!-- src/App.vue -->
 <template>
-  <div class="app">
-    <h1>Rubik's Cube Solver</h1>
-    <div class="content">
-      <RubicsCube />
-      <div class="side-panel">
-        <ControlPanel />
-        <SolveSteps />
-        <CubeStateInput></CubeStateInput>
-      </div>
-    </div>
-  </div>
+  <v-app>
+    <Header></Header>
+    <v-main class="v-main pa-0">
+      <MainView></MainView>
+    </v-main>
+  </v-app>
 </template>
-
-<script setup>
-import RubicsCube from './components/RubicsCube.vue';
-import ControlPanel from './components/ControlPanel.vue';
-import SolveSteps from './components/SolveSteps.vue';
-import CubeStateInput from "./components/CubeStateInput.vue";
+<script setup lang="ts">
+import Header from "./components/Header.vue";
+import MainView from "./Views/MainView.vue";
 </script>
-
 <style>
-.app {
-  font-family: Arial, sans-serif;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 20px;
+.v-main {
+  height: 100%;
 }
 
-.content {
+/* This ensures that the v-app takes up the full viewport height */
+.v-application {
+  min-height: 100vh;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
 }
 
-.side-panel {
-  width: 300px;
+/* This removes any default padding on the v-main */
+.v-main.pa-0 {
+  padding: 0 !important;
 }
 </style>

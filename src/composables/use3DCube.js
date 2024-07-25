@@ -11,6 +11,46 @@ export function use3DCube() {
   const cubeSize = 3;
   const cubieSize = 1;
   const spacing = 0.05;
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  let isDragging = false;
+let mouseDownTime;
+const dragThreshold = 5; // pixels
+const clickThreshold = 200; // milliseconds
+let mouseDownPosition = new THREE.Vector2();
+  const selectedColor = ref('U')
+  const selectColor = (color) => {
+  selectedColor.value = color;
+};
+  const getColorHex = (letter) => {
+  return colors[letter];
+};
+  let isCustomizationMode = ref(false);
+  const toggleCustomizationMode = () => {
+    isCustomizationMode.value = !isCustomizationMode.value;
+
+  };
+const onCubeClick = (event) => {
+  if (!isCustomizationMode.value) return;
+
+  const rect = container.value.getBoundingClientRect();
+  mouse.x = ((event.clientX - rect.left) / container.value.clientWidth) * 2 - 1;
+  mouse.y = -((event.clientY - rect.top) / container.value.clientHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(cubeGroup.children, true);
+
+  if (intersects.length > 0) {
+    const intersectedObject = intersects[0].object;
+    const faceIndex = intersects[0].faceIndex;
+    changeColor(intersectedObject, Math.floor(faceIndex / 2));
+  }
+};
+  const changeColor = (cubie, faceIndex) => {
+    const currentColor = cubie.material[faceIndex].color.getHexString();
+    cubie.material[faceIndex].color.setHex(getColorHex(selectedColor.value));
+  };
+
 
   let cubies = [];
 
@@ -93,9 +133,81 @@ const updateThreeJsFromCubeState = (state) => {
 
     window.addEventListener('resize', onWindowResize, false);
 
-    animate(); // Start the animation loop
-  };
 
+    animate(); // Start the animation loop
+    //container.value.addEventListener('click', onCubeClick);
+    container.value.addEventListener('mousedown', onMouseDown);
+    container.value.addEventListener('mousemove', onMouseMove);
+    container.value.addEventListener('mouseup', onMouseUp);
+  };
+  const getCurrentState = () => {
+  let state = new Array(54).fill('');
+  const colorToFace = Object.fromEntries(Object.entries(colors).map(([k, v]) => [v, k]));
+
+  cubeGroup.children.forEach((cubie) => {
+    const {x, y, z} = cubie.userData.coords;
+
+    // Up face (y = 0)
+    if (y === 0) {
+      state[z * 3 + x] = colorToFace[cubie.material[2].color.getHex()];
+    }
+
+    // Down face (y = 2)
+    if (y === 2) {
+      state[33 + x - 3*z] = colorToFace[cubie.material[3].color.getHex()];
+    }
+
+    // Front face (z = 2)
+    if (z === 2) {
+      state[18 + y * 3 + x] = colorToFace[cubie.material[4].color.getHex()];
+    }
+
+    // Back face (z = 0)
+    if (z === 0) {
+      state[45 + y * 3 + (2 - x)] = colorToFace[cubie.material[5].color.getHex()];
+    }
+
+    // Right face (x = 2)
+    if (x === 2) {
+      state[9 + y * 3 + (2 - z)] = colorToFace[cubie.material[0].color.getHex()];
+    }
+
+    // Left face (x = 0)
+    if (x === 0) {
+      state[36 + y * 3 + z] = colorToFace[cubie.material[1].color.getHex()];
+    }
+  });
+  return state.join('');
+};
+  const onMouseDown = (event) => {
+  mouseDownTime = new Date().getTime();
+  mouseDownPosition.set(event.clientX, event.clientY);
+  isDragging = false;
+};
+
+const onMouseMove = (event) => {
+  if (!isCustomizationMode.value) return;
+
+  const deltaX = Math.abs(event.clientX - mouseDownPosition.x);
+  const deltaY = Math.abs(event.clientY - mouseDownPosition.y);
+
+  if (deltaX > dragThreshold || deltaY > dragThreshold) {
+    isDragging = true;
+  }
+};
+
+const onMouseUp = (event) => {
+  if (!isCustomizationMode.value) return;
+
+  const mouseUpTime = new Date().getTime();
+  const deltaTime = mouseUpTime - mouseDownTime;
+
+  if (!isDragging && deltaTime < clickThreshold) {
+    onCubeClick(event);
+  }
+
+  isDragging = false;
+};
   const onWindowResize = () => {
     camera.aspect = container.value.clientWidth / container.value.clientHeight;
     camera.updateProjectionMatrix();
@@ -104,6 +216,10 @@ const updateThreeJsFromCubeState = (state) => {
   onBeforeUnmount(() => {
   window.removeEventListener('resize', onWindowResize);
   renderer.dispose();
+  //container.value.removeEventListener('click', onCubeClick);
+  container.value.removeEventListener('mousedown', onMouseDown);
+  container.value.removeEventListener('mousemove', onMouseMove);
+  container.value.removeEventListener('mouseup', onMouseUp);
 });
   const animate = () => {
     requestAnimationFrame(animate);
@@ -117,5 +233,9 @@ const updateThreeJsFromCubeState = (state) => {
     container,
     init,
     updateThreeJsFromCubeState,
+    toggleCustomizationMode,
+    isCustomizationMode,
+    getCurrentState,
+    selectColor
   };
 }
