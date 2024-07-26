@@ -66,11 +66,11 @@ function convertSolutionToSteps(step) {
 
 <style scoped>
 .solve-steps {
-  background-color: #1a1a1a; /* secondary */
+   background-color: var(--v-background-base);
   padding: 16px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  color: #fff;
+  color: var(--v-writing-base);
 }
 
 .v-list-item.text-primary {

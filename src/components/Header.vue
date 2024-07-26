@@ -1,22 +1,23 @@
 <!-- Header.vue -->
 <template>
-  <v-app-bar app color="rgba(26, 26, 26, 1.0)">
-    <v-app-bar-nav-icon @click="toggleSidebar" v-if="!mdAndUp" />
-    <v-toolbar-title class="custom-title">Rubics Cube Solver
-    </v-toolbar-title>
+  <v-app-bar>
+    <v-app-bar-title class="text-h6" color="primary">Rubik's Cube Solver</v-app-bar-title>
+    <v-spacer></v-spacer>
+    <v-btn @click="toggleTheme()">
+      <v-icon>{{ isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+    </v-btn>
   </v-app-bar>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import {useDisplay} from 'vuetify'
+import { useTheme } from 'vuetify';
+import {computed} from "vue";
 
-const { xs, mdAndUp } = useDisplay()
+const theme = useTheme();
+const isDarkTheme = computed(() => theme.global.name.value === 'dark');
 
-const sidebarOpen = ref(false);
-
-const toggleSidebar = () => {
-  sidebarOpen.value = !sidebarOpen.value;
+const toggleTheme = () => {
+  theme.global.name.value = isDarkTheme.value ? 'light' : 'dark';
 };
 </script>
 <style scoped>

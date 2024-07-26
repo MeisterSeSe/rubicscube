@@ -1,52 +1,43 @@
 <!-- src/components/RubiksCube.vue -->
 <template>
-  <v-container fluid class="py-4">
+  <v-container fluid class="py-4 rubiks-cube-wrapper">
     <!-- Rubik's Cube Section -->
     <v-row justify="center">
-          <div ref="container" class="rubiks-cube"></div>
+      <v-container class="rubiks-cube-container">
+        <div ref="container" class="rubiks-cube"></div>
+      </v-container>
+
     </v-row>
 
     <!-- Customization Panel Section -->
-    <v-row justify="center" class="mt-4">
-      <v-col cols="12" md="8">
-        <v-card class="customization-panel pa-4">
-          <v-card-title class="text-h5">Cube Customization</v-card-title>
-          <v-divider class="my-4"></v-divider>
-          <v-card-text class="mode-toggle">
-            <v-btn
-              block
-              :color="isCustomizationMode ? 'success' : 'primary'"
-              @click="toggleMode"
-              class="mb-4"
-              large
-            >
-              {{ isCustomizationMode ? 'Exit Customization' : 'Enter Customization' }}
-            </v-btn>
-            <v-row v-if="isCustomizationMode" class="mb-4">
-              <v-col v-for="color in colorMap" :key="color.letter" cols="4" sm="2" class="text-center">
+    <v-row no-gutters>
+      <v-col cols="12">
+        <v-expand-transition>
+          <div v-if="isCustomizationMode" class="customization-panel">
+            <v-card flat>
+              <v-card-title class="text-h6">Cube Customization</v-card-title>
+              <v-card-text>
+                <v-row dense>
+                  <v-col v-for="color in colorMap" :key="color.letter" cols="4" sm="2">
+                    <v-btn
+                      :color="color.hex"
+                      fab
+                      small
+                      @click="selectColor(color.letter)"
+                      :outlined="selectedColor === color.letter"
+                    >
+                    </v-btn>
+                  </v-col>
+                </v-row>
                 <v-btn
-                  :color="color.hex"
-                  fab
-                  small
-                  @click="selectColor(color.letter)"
-                  :outlined="selectedColor === color.letter"
-                  class="ma-2"
+                  block
+                  color="primary"
+                  @click="applyCustomState"
+                  class="mt-4"
                 >
-                  {{ color.letter }}
+                  Apply Custom State
                 </v-btn>
-              </v-col>
-            </v-row>
-            <v-btn
-              v-if="isCustomizationMode"
-              block
-              color="secondary"
-              @click="applyCustomState"
-              class="mb-4"
-              large
-            >
-              Apply Custom State
-            </v-btn>
-            <v-alert
+                <v-alert
               v-if="cubeStore.stateWarning"
               type="warning"
               dense
@@ -55,8 +46,23 @@
             >
               {{ cubeStore.stateWarning }}
             </v-alert>
-          </v-card-text>
-        </v-card>
+              </v-card-text>
+
+            </v-card>
+          </div>
+        </v-expand-transition>
+      </v-col>
+    </v-row>
+    <v-row no-gutters>
+      <v-col cols="12">
+        <v-btn
+          block
+          :color="isCustomizationMode ? 'error' : 'primary'"
+          @click="toggleMode"
+          class="mt-4"
+        >
+          {{ isCustomizationMode ? 'Exit Customization' : 'Enter Customization' }}
+        </v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -81,6 +87,7 @@ const selectedColor = ref('U')
 const toggleMode = () => {
   toggleCustomizationMode();
   updateThreeJsFromCubeState(cubeStore.cubeState);
+  cubeStore.stateWarning = '';
 };
   const colorMap = [
   { letter: 'U', hex: '#FFFFFF' }, // White
@@ -106,10 +113,13 @@ const applyCustomState = () => {
   width: 500px;
   height: 500px;
   margin: auto;
+  top: 0;
+  left: 0;
 }
 .customization-panel {
   margin-top: 20px;
 }
+
 .mode-toggle {
   width: 100%;
   padding: 10px;

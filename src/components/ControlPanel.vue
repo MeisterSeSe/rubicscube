@@ -4,7 +4,7 @@
     <h3 class="text-h5 mb-4">Cube Controls</h3>
     <v-row dense>
       <v-col v-for="move in ['U', 'D', 'L', 'R', 'F', 'B']" :key="move" cols="4">
-        <v-btn block @click="cubeStore.rotate(move)" class="cube-button">{{ move }}</v-btn>
+        <v-btn block @click="cubeStore.rotate(move)" class="cube-button" color="primary">{{ move }}</v-btn>
       </v-col>
     </v-row>
     <v-row class="mt-4">
@@ -28,16 +28,14 @@ const cubeStore = useCubeStore();
 
 <style scoped>
 .control-panel {
-  background-color: #1a1a1a; /* secondary */
+  background-color: var(--v-background-base);
   padding: 16px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  color: #fff;
+  color: #00ff0b;
 }
 
 .cube-button {
-  background-color: #00ff0b; /* primary */
-  color: #1a1a1a; /* secondary */
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
