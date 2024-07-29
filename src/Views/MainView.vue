@@ -37,7 +37,6 @@ const tab = ref('controls');
 <style scoped>
 .main-container {
   height: 100%;
-  max-width: 100% !important;
 }
 
 .rubiks-cube-col {

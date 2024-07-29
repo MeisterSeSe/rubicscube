@@ -1,6 +1,6 @@
 <!-- Header.vue -->
 <template>
-  <v-app-bar>
+  <v-app-bar app>
     <v-app-bar-title class="text-h6" color="primary">Rubik's Cube Solver</v-app-bar-title>
     <v-spacer></v-spacer>
     <v-btn @click="toggleTheme()">

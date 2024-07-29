@@ -24,6 +24,14 @@
 <script setup>
 import { useCubeStore } from '../store/cubeStore';
 const cubeStore = useCubeStore();
+const moves = {
+  U: "Move Top Row", // White
+  R: "Move Right Column", // Red
+  F: "Move Left Column", // Green
+  D: "Move Bottom Row", // Yellow
+  L: "Move Left Column", // Orange
+  B: "Move Bottom Row"  // Blue
+};
 </script>
 
 <style scoped>

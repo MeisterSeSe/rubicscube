@@ -3,11 +3,12 @@
 <template>
   <v-app >
     <Header />
-    <v-main>
+    <v-main class="main-content">
       <MainView />
     </v-main>
   </v-app>
 </template>
+
 
 <script setup lang="ts">
 import Header from "./components/Header.vue";
@@ -17,8 +18,8 @@ const theme = ref('dark');
 
 
 </script>
-<style>
-.v-main {
-  width: 100%;
+<style scoped>
+.main-content {
+  padding-top: 64px; /* Default height of v-app-bar in Vuetify */
 }
 </style>
