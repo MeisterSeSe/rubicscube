@@ -62,8 +62,14 @@ const tab = ref('controls');
     display: none;
   }
 
-  .control-panel-col {
-    padding-left: 0;
+  .rubiks-cube-col::before {
+    content: '';
+    position: absolute;
+    bottom: -16px; /* adjust the position as needed */
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #00ff0b;
   }
 }
 </style>
