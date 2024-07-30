@@ -6,6 +6,7 @@
     <v-main class="main-content">
       <MainView />
     </v-main>
+    <Footer/>
   </v-app>
 </template>
 
@@ -14,6 +15,7 @@
 import Header from "./components/Header.vue";
 import MainView from "./Views/MainView.vue";
 import {ref} from "vue";
+import Footer from "./components/Footer.vue";
 const theme = ref('dark');
 
 
@@ -21,5 +23,6 @@ const theme = ref('dark');
 <style scoped>
 .main-content {
   padding-top: 64px; /* Default height of v-app-bar in Vuetify */
+  min-height: 100vh;
 }
 </style>
