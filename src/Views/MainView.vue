@@ -1,12 +1,15 @@
 <!-- MainView.vue -->
 <template>
-  <v-container fluid class="pa-0 main-container">
+  <v-container fluid class="pa-0 main-container" :style="{ backgroundColor: theme?.current?.value?.colors?.background}">
     <v-row no-gutters class="fill-height">
       <v-col cols="12" lg="8" class="d-flex justify-center align-center rubiks-cube-col">
         <RubicsCube />
       </v-col>
-      <v-col cols="12" lg="4" class="d-flex flex-column control-panel-col">
-        <v-card flat class="flex-grow-1 control-panel">
+
+      <v-col cols="12" lg="4" class="d-flex flex-column control-panel-col ">
+        <v-divider v-if="!lgAndUp" color="primary" thickness="5"></v-divider>
+        <v-card flat class="flex-grow-1 control-panel"
+        :style="{ backgroundColor: theme?.current?.value?.colors?.surface}">
           <v-tabs v-model="tab" color="primary" grow>
             <v-tab value="controls">Controls</v-tab>
             <v-tab value="steps">Solve Steps</v-tab>
@@ -30,8 +33,10 @@ import RubicsCube from '../components/RubicsCube.vue';
 import ControlPanel from '../components/ControlPanel.vue';
 import SolveSteps from '../components/SolveSteps.vue';
 import {ref} from "vue";
-
+import {useDisplay, useTheme} from "vuetify";
+const { xs, mdAndUp, lgAndUp } = useDisplay()
 const tab = ref('controls');
+const theme = useTheme();
 </script>
 
 <style scoped>
@@ -43,33 +48,23 @@ const tab = ref('controls');
   position: relative;
 }
 
-.rubiks-cube-col::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 1px;
-  background-color: #00ff0b;
-}
+
 
 .control-panel-col {
   padding-left: 16px;
 }
-
-@media (max-width: 1263px) {
   .rubiks-cube-col::after {
-    display: none;
-  }
-
-  .rubiks-cube-col::before {
     content: '';
     position: absolute;
-    bottom: -16px; /* adjust the position as needed */
-    left: 0;
+    top: 0;
     right: 0;
-    height: 1px;
+    bottom: 0;
+    width: 1px;
     background-color: #00ff0b;
+  }
+@media (max-width: 1280px) { /* Ensures no line is shown for lg and larger screens */
+  .rubiks-cube-col::after {
+    content: none;
   }
 }
 </style>

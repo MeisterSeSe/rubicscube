@@ -4,6 +4,7 @@
         class="d-flex py-4 contact-section justify-space-between"
         style="flex: initial"
         absolute
+
         border="t">
       <v-card class="contact-card green-outline">
         <v-card-title class="text-h2 font-weight-bold">Get In Touch</v-card-title>
@@ -29,22 +30,19 @@
 
 <script setup>
 // Your setup script goes here
+import {useTheme} from "vuetify";
+
+const theme = useTheme();
 </script>
 
 <style scoped>
 /* Your custom styles go here */
 .contact-card {
-  background-color: rgba(26, 26, 26, 0.1); /* Dark background with transparency */
-  color: white;
+/* Dark background with transparency */
   padding: 20px;
   border-radius: 0; /* Rounded corners */
   margin: 0px;
   width: 100%;
-}
-.contact-section {
-  background-color: rgba(26, 26, 26, 0.9);
-  color: #eaeaea;
-
 }
 .green-outline {
   border-top: 2px solid #00ff00;

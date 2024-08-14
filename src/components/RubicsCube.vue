@@ -73,9 +73,12 @@ import {onMounted, ref, watch} from 'vue';
 import { use3DCube } from '../composables/use3DCube';
 import {useCubeStore} from "../store/cubeStore.js";
 import {storeToRefs} from "pinia";
+import {useTheme} from "vuetify";
 const cubeStore = useCubeStore();
 const { container, init, updateThreeJsFromCubeState, toggleCustomizationMode, getCurrentState, isCustomizationMode, selectColor } = use3DCube();
+const theme = useTheme();
 onMounted(() => {
+
   init();
 });
 // Watch for changes in the cube state and update the 3D visualization

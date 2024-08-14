@@ -4,12 +4,17 @@
     <h3 class="text-h5 mb-4" >Solution Steps</h3>
     <v-list density="compact" class = "solve-steps mt-0">
       <v-list-item
+        v-if ="cubeStore.solutionSteps.length > 0"
         v-for="(step, index) in cubeStore.solutionSteps"
         :key="index"
         :class="{ 'text-primary': index === cubeStore.currentStep }"
 
       >
         <v-list-item-title color="primary" >{{ convertSolutionToSteps(step) }}</v-list-item-title>
+      </v-list-item>
+      <v-list-item
+      v-else>
+        <v-list-item-title color="primary" style="word-wrap: break-word;overflow-wrap: break-word;white-space: normal;">Currently no solution. Click on "Solve" to display a possible solution for the cube state</v-list-item-title>
       </v-list-item>
     </v-list>
 
@@ -66,11 +71,9 @@ function convertSolutionToSteps(step) {
 
 <style scoped>
 .solve-steps {
-   background-color: var(--v-background-base);
   padding: 16px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  color: var(--v-writing-base);
 }
 
 .v-list-item.text-primary {
